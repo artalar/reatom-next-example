@@ -6,13 +6,14 @@ export function connectReduxDevtools(
   replaceStore = (store: Store) => {},
   config = {},
 ) {
-  const devTools =
-    typeof window !== 'undefined' &&
-    (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
-    (window as any).__REDUX_DEVTOOLS_EXTENSION__.connect(config)
+  const { connect } = (globalThis as any).__REDUX_DEVTOOLS_EXTENSION__ ?? {}
 
-  if (!devTools) return
+  if (typeof connect !== 'function') {
+    console.warn(`Trying to use redux devtools without extension`)
+    return
+  }
 
+  const devTools = connect(config)
   let state = store.getState()
 
   devTools.init(state)

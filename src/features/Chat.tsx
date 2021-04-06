@@ -1,45 +1,46 @@
 import React from 'react'
 import { Style, styled } from 'stylerun'
 import { useModel } from '@reatom/react'
-import * as model from './Chat/model'
+import { messagesAtom, sendMessage } from './Chat/model'
 
 const Container = styled(`main`)
 const Form = styled(`form`)
+const MessageWindow = styled(`section`)
+const Input = styled(`textarea`)
 
 export const Chat = () => {
-  const { initChat, sendMessage, messages } = useModel(() => model)
-
-  React.useEffect(() => {
-    initChat()
-  }, [])
+  const { messages, handleSend } = useModel(() => ({
+    messages: messagesAtom,
+    handleSend: sendMessage,
+  }))
 
   return (
     <Container>
-      <section className="nes-container">
+      <MessageWindow className="nes-container">
         <section className="message-list">
-          {messages.map(({ data, isSelfMessage }, index) => {
+          {messages.map(({ text, isSelfMessage }, index) => {
             const direction = isSelfMessage ? `-right` : `-left`
             return (
               <section className={`message ${direction}`}>
                 {!isSelfMessage && <i className="nes-bcrikko"></i>}
                 <div key={index} className={`nes-balloon from${direction}`}>
-                  <p>{data}</p>
+                  <p>{text}</p>
                 </div>
                 {isSelfMessage && <i className="nes-bcrikko"></i>}
               </section>
             )
           })}
         </section>
-      </section>
+      </MessageWindow>
       <Form
         onSubmit={(e) => {
           e.preventDefault()
           const input = e.currentTarget.querySelector('textarea')!
-          sendMessage(input.value)
+          handleSend(input.value)
           input.value = ''
         }}
       >
-        <textarea placeholder="Type a message..."></textarea>
+        <Input placeholder="Type a message..."></Input>
         <button type="submit">Send</button>
       </Form>
       <Style>{`
@@ -50,7 +51,7 @@ export const Chat = () => {
           padding: 2rem calc((100vw - 50rem) / 2);
           height: 100vh;
         }
-        ${Container} section {
+        ${MessageWindow} {
           flex: 1;
           overflow: auto;
           word-break: break-all;
@@ -58,7 +59,7 @@ export const Chat = () => {
         ${Form} {
           display: flex;
         }
-        ${Form} textarea {
+        ${Input} {
           flex: 1;
         }
       `}</Style>

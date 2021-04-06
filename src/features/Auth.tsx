@@ -1,43 +1,33 @@
 import React from 'react'
-import Router from 'next/router'
 import { Style, styled } from 'stylerun'
 import { useModel } from '@reatom/react'
-import * as model from './Auth/model'
+import { nameAtom, onNameChange, onSubmit } from './Auth/model'
 
 const Container = styled('main')
 
 export const Auth = () => {
-  const { submit, login, setLogin, password, setPassword } = useModel(
-    () => model,
-  )
+  const { name, handleNameChange, handleSubmit } = useModel(() => ({
+    name: nameAtom,
+    handleNameChange: onNameChange,
+    handleSubmit: onSubmit,
+  }))
 
   return (
     <Container>
-      <form className="nes-container with-title" onSubmit={submit}>
+      <form className="nes-container with-title" onSubmit={handleSubmit}>
         <h2 className="title">Auth</h2>
         <div className="nes-field">
-          <label>Email:</label>
+          <label>Name:</label>
           <input
             className="nes-input"
-            value={login}
-            onChange={setLogin}
-            type="email"
-            placeholder="email"
+            value={name}
+            onChange={handleNameChange}
+            placeholder="Enter your nickname"
             autoComplete="new-password"
+            type="text"
+            minLength={3}
+            required
             autoFocus
-            required
-          />
-        </div>
-        <div className="nes-field">
-          <label>Password:</label>
-          <input
-            className="nes-input"
-            value={password}
-            onChange={setPassword}
-            type="password"
-            placeholder="password"
-            required
-            minLength={6}
           />
         </div>
         <br />

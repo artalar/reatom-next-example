@@ -1,15 +1,19 @@
 import 'nes.css/css/nes.min.css'
 import React from 'react'
+import { useRouter } from 'next/router'
 import { Style } from 'stylerun'
 import { createStore } from '@reatom/core'
 import { reatomContext } from '@reatom/react'
 import type { AppProps /*, AppContext */ } from 'next/app'
 import { connectReduxDevtools } from '~/reatom-redux-devtools'
-
-const store = createStore()
+import { routerAtom } from '~/features/router'
 
 function App({ Component, pageProps }: AppProps) {
-  const [store, setStore] = React.useState(createStore)
+  const router = useRouter()
+
+  const [store, setStore] = React.useState(() =>
+    createStore({ ...pageProps.state, [routerAtom.id]: router }),
+  )
 
   React.useEffect(() => {
     connectReduxDevtools(store, setStore)
