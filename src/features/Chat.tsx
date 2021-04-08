@@ -18,15 +18,18 @@ export const Chat = () => {
     <Container>
       <MessageWindow className="nes-container">
         <section className="message-list">
-          {messages.map(({ text, isSelfMessage }, index) => {
-            const direction = isSelfMessage ? `-right` : `-left`
+          {messages.map((msg, index) => {
+            // FIXME:
+            // @ts-expect-error
+            const { isSelf } = msg
+            const direction = isSelf ? `-right` : `-left`
             return (
               <section className={`message ${direction}`}>
-                {!isSelfMessage && <i className="nes-bcrikko"></i>}
+                {!isSelf && <i className="nes-bcrikko"></i>}
                 <div key={index} className={`nes-balloon from${direction}`}>
-                  <p>{text}</p>
+                  <p>{msg.text}</p>
                 </div>
-                {isSelfMessage && <i className="nes-bcrikko"></i>}
+                {isSelf && <i className="nes-bcrikko"></i>}
               </section>
             )
           })}

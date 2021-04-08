@@ -43,3 +43,7 @@ export function createEffectsTracker(store: Store, start = () => {}) {
     start()
   })
 }
+
+export function sleep(ms = 16) {
+  return new Promise((r) => setTimeout(r, ms))
+}

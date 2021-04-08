@@ -1,0 +1,11 @@
+query getMessages($session: String!) {
+  messages(limit: 50) {
+    id
+    date
+    author
+    text
+  }
+  users(where: {session: {_eq: $session}}) {
+    name
+  }
+}

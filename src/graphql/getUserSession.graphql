@@ -1,0 +1,6 @@
+query getUserSession($name: String!) {
+  users(where: { name: { _eq: $name } }) {
+    session
+    password
+  }
+}

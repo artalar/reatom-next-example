@@ -1,0 +1,7 @@
+mutation createUser($name: String!, $password: String!, $session: String!) {
+  insert_users_one(
+    object: { name: $name, password: $password, session: $session }
+  ) {
+    session
+  }
+}

@@ -1,0 +1,46 @@
+overwrite: true
+schema: './src/schema.graphql'
+documents: 'src/graphql/*.graphql'
+generates:
+  src/graphql/types/index.ts:
+    plugins:
+      - typescript
+    config:
+      enumsAsTypes: true
+      skipTypename: true
+      documentMode: 'string'
+      avoidOptionals:
+        field: false
+        inputValue: false
+        object: false
+      maybeValue: T
+      scalars:
+        Object: '{ [key: string]: any }'
+        JSON: '{ [key: string]: any }'
+        DateTime: string
+        timestamptz: string
+  src/graphql/:
+    preset: near-operation-file
+    presetConfig:
+      baseTypesPath: types
+      extension: .ts
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+    config:
+      enumsAsTypes: true
+      skipTypename: true
+      documentMode: 'string'
+      preResolveTypes: true
+      onlyOperationTypes: true
+      avoidOptionals:
+        field: false
+        inputValue: false
+        object: false
+      maybeValue: T
+      scalars:
+        Object: '{ [key: string]: any }'
+        JSON: '{ [key: string]: any }'
+        DateTime: string
+        timestamptz: string

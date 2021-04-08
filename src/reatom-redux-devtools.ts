@@ -19,19 +19,17 @@ export function connectReduxDevtools(
   devTools.init(state)
 
   devTools.subscribe((action: any) => {
-    if (action.type === 'DISPATCH') {
-      replaceStore((store = createStore(JSON.parse(action.state))))
-      subscribe()
-    }
+    // if (action.type === 'DISPATCH') {
+    //   replaceStore((store = createStore(JSON.parse(action.state))))
+    //   subscribe()
+    // }
   })
 
   function subscribe() {
     store.subscribe((transaction) => {
       // if (action.type === init.type) return
       const diff = [...transaction.patch].reduce<Record<string, any>>(
-        (acc, [{ displayName }, { state }]) => (
-          (acc[displayName] = state), acc
-        ),
+        (acc, [{ id }, { state }]) => ((acc[id] = state), acc),
         {},
       )
 

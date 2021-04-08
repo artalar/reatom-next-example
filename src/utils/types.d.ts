@@ -1,6 +1,7 @@
 declare namespace NodeJS {
   interface ProcessEnv {
-    readonly ABLY_API_KEY: string
+    readonly GQL_HOST: string
+    readonly GQL_TOKEN: string
   }
 }
 
@@ -21,8 +22,4 @@ declare global {
     ) => RequestIdleCallbackHandle
     cancelIdleCallback: (handle: RequestIdleCallbackHandle) => void
   }
-}
-
-declare module '*.graphql' {
-  export = string
 }

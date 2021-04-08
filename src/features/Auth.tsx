@@ -1,14 +1,28 @@
 import React from 'react'
 import { Style, styled } from 'stylerun'
 import { useModel } from '@reatom/react'
-import { nameAtom, onNameChange, onSubmit } from './Auth/model'
+import {
+  nameAtom,
+  onNameChange,
+  passwordAtom,
+  onPasswordChange,
+  onSubmit,
+} from './Auth/model'
 
 const Container = styled('main')
 
 export const Auth = () => {
-  const { name, handleNameChange, handleSubmit } = useModel(() => ({
+  const {
+    name,
+    password,
+    handleNameChange,
+    handlePasswordChange,
+    handleSubmit,
+  } = useModel(() => ({
     name: nameAtom,
     handleNameChange: onNameChange,
+    password: passwordAtom,
+    handlePasswordChange: onPasswordChange,
     handleSubmit: onSubmit,
   }))
 
@@ -23,11 +37,26 @@ export const Auth = () => {
             value={name}
             onChange={handleNameChange}
             placeholder="Enter your nickname"
-            autoComplete="new-password"
+            name="name"
             type="text"
             minLength={3}
             required
             autoFocus
+          />
+        </div>
+        <br />
+        <div className="nes-field">
+          <label>Password:</label>
+          <input
+            className="nes-input"
+            value={password}
+            onChange={handlePasswordChange}
+            placeholder="Enter your password"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            minLength={4}
+            required
           />
         </div>
         <br />

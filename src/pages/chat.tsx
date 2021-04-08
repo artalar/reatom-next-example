@@ -1,16 +1,15 @@
 import React from 'react'
 import { NextPageContext } from 'next'
+import fetch, { Response } from 'cross-fetch'
 import { createStore, declareAtom } from '@reatom/core'
 import { useAction, useAtom } from '@reatom/react'
 
-import {
-  initChat,
-  authUrlAtom,
-  chatAtom,
-  ablyAtom,
-} from '~/features/Chat/model'
+import { fetchAtom } from '~/features/fetch'
+import { initChat, chatAtom, isOnlineAtom } from '~/features/Chat/model'
 import { Chat } from '~/features/Chat'
 import { createEffectsTracker } from '~/utils'
+import { getMessages } from './api/messages'
+import { routerAtom } from '~/features/router'
 
 function ChatPage() {
   const handleInitChat = useAction(initChat)
@@ -25,20 +24,28 @@ function ChatPage() {
 
 ChatPage.getInitialProps = async (ctx: NextPageContext) => {
   const store = createStore({
-    [authUrlAtom.id]: `http://localhost:3000/api/ably/auth`,
+    [fetchAtom.id]: async (...a: any[]) => {
+      if (a[0] === `/api/messages`) {
+        // FIXME:
+        // @ts-expect-error
+        const { session } = ctx.req?.cookies ?? {}
+        return new Response(JSON.stringify(await getMessages(session)))
+      }
+      // @ts-expect-error
+      return fetch(...a)
+    },
+    // [routerAtom.id]: new Router()
   })
   store.init(chatAtom)
 
-  await createEffectsTracker(store, () => store.dispatch(initChat()))
+  await createEffectsTracker(store, () => {
+    store.dispatch(initChat())
+    setTimeout(() => store.dispatch(isOnlineAtom.update(false)))
+  })
 
   const state = store.getState()
   // cleanup initial mock
-  delete state[authUrlAtom.id]
-  // remove `ably` from `chatAtom` state manualy
-  // as it has circular structure
-  state[ablyAtom.id] = {
-    messages: state[ablyAtom.id].messages,
-  }
+  delete state[fetchAtom.id]
 
   return {
     state,
