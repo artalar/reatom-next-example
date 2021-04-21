@@ -38,7 +38,7 @@ export default async function handleMessages(
 
     await gqlClient.createMessage({
       author: users[0].name,
-      text: req.body,
+      text: JSON.parse(req.body).text,
     })
 
     return res.status(200).end()

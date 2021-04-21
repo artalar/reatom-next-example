@@ -1,13 +1,15 @@
 import 'nes.css/css/nes.min.css'
 import React from 'react'
 import { useRouter } from 'next/router'
-import { Style } from 'stylerun'
+import { Style, styled } from 'stylerun'
 import type { AppProps /*, AppContext */ } from 'next/app'
 import { createStore, declareAtom } from '@reatom/core'
 import { reatomContext, useAtom } from '@reatom/react'
 import { connectReduxDevtools } from '~/reatom-redux-devtools'
 import { pushStateAtom, routerAtom } from '~/features/router'
 import { fetchAtom } from '~/features/fetch'
+
+const Container = styled(`div`)
 
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
@@ -44,7 +46,10 @@ function App({ Component, pageProps }: AppProps) {
 
   return (
     <reatomContext.Provider value={store}>
-      <Component {...pageProps} />
+      <Container>
+        <Component {...pageProps} />
+        <i className="nes-icon github is-large"></i>
+      </Container>
       <Style>{`
         body {
           font-family: courier;

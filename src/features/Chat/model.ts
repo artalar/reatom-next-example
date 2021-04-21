@@ -8,7 +8,7 @@ import type { Message } from '~/features/types'
 export const initChat = declareAction(`chat/initChat`)
 export const getMessages = declareAction(`chat/getMessages`)
 export const receiveMessages = declareAction<Array<Message>>(
-  `chat/recieveMessages`,
+  `chat/receiveMessages`,
 )
 export const sendMessage = declareAction<string>(`chat/sendMessage`)
 
@@ -21,10 +21,10 @@ export const messagesAtom = declareAtom(
 
     $(
       initChat.handleEffect(async (action, store) => {
-        while (store.getState(isOnlineAtom)) {
+        do {
           store.dispatch(getMessages())
           await sleep(1000)
-        }
+        } while (store.getState(isOnlineAtom))
       }),
     )
 

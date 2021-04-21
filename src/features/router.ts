@@ -18,7 +18,7 @@ export const routerAtom = declareAtom(($, state = window.location.pathname) => {
   $(push.handle(({ path }) => (state = path)))
   $(
     push.handleEffect(({ payload }) =>
-      pushState({}, payload.title ?? document.title, state),
+      pushState({}, payload.title ?? ``, state),
     ),
   )
 
