@@ -1,7 +1,7 @@
 ## Setup
 
 ```sh
-yarn --ignore-engines
+npm i
 ```
 
 To connect to backend you should have a `.env.local` file in the root of repo with two variables:
