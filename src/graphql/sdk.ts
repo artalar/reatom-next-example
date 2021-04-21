@@ -1,5 +1,3 @@
-import * as Types from './types';
-
 import { GraphQLClient } from 'graphql-request';
 import * as Dom from 'graphql-request/dist/types.dom';
 export type Maybe<T> = T;
@@ -304,14 +302,50 @@ export type Users_Update_Column =
   | 'password'
   | 'session';
 
-export type GetUserSessionQueryVariables = Types.Exact<{
-  name: Types.Scalars['String'];
+export type CreateUserMutationVariables = Exact<{
+  name: Scalars['String'];
+  password: Scalars['String'];
+  session: Scalars['String'];
 }>;
 
 
-export type GetUserSessionQuery = { users: Array<{ session?: Types.Maybe<string>, password: string }> };
+export type CreateUserMutation = { insert_users_one?: Maybe<{ session?: Maybe<string> }> };
+
+export type GetMessagesQueryVariables = Exact<{
+  session: Scalars['String'];
+}>;
 
 
+export type GetMessagesQuery = { messages: Array<{ id: number, date: string, author: string, text: string }>, users: Array<{ name: string }> };
+
+export type GetUserSessionQueryVariables = Exact<{
+  name: Scalars['String'];
+}>;
+
+
+export type GetUserSessionQuery = { users: Array<{ session?: Maybe<string>, password: string }> };
+
+
+export const CreateUserDocument = `
+    mutation createUser($name: String!, $password: String!, $session: String!) {
+  insert_users_one(object: {name: $name, password: $password, session: $session}) {
+    session
+  }
+}
+    `;
+export const GetMessagesDocument = `
+    query getMessages($session: String!) {
+  messages(limit: 50) {
+    id
+    date
+    author
+    text
+  }
+  users(where: {session: {_eq: $session}}) {
+    name
+  }
+}
+    `;
 export const GetUserSessionDocument = `
     query getUserSession($name: String!) {
   users(where: {name: {_eq: $name}}) {
@@ -327,6 +361,12 @@ export type SdkFunctionWrapper = <T>(action: () => Promise<T>) => Promise<T>;
 const defaultWrapper: SdkFunctionWrapper = sdkFunction => sdkFunction();
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    createUser(variables: CreateUserMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateUserMutation> {
+      return withWrapper(() => client.request<CreateUserMutation>(CreateUserDocument, variables, requestHeaders));
+    },
+    getMessages(variables: GetMessagesQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetMessagesQuery> {
+      return withWrapper(() => client.request<GetMessagesQuery>(GetMessagesDocument, variables, requestHeaders));
+    },
     getUserSession(variables: GetUserSessionQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetUserSessionQuery> {
       return withWrapper(() => client.request<GetUserSessionQuery>(GetUserSessionDocument, variables, requestHeaders));
     }

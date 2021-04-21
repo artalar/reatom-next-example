@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { gqlClient } from '~/features/gqlClient'
-import { getSdk as createGetMessages } from '~/graphql/getMessages'
+
+import gqlClient from '~/graphql'
 
 export async function getMessages(session: string) {
   if (!session) return null
 
-  const { users, messages } = await createGetMessages(gqlClient).getMessages({
+  const { users, messages } = await gqlClient.getMessages({
     session,
   })
 

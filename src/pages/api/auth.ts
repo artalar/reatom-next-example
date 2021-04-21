@@ -1,8 +1,7 @@
 import bcrypt from 'bcrypt'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { gqlClient } from '~/features/gqlClient'
-import { getSdk as createGetUserSession } from '~/graphql/getUserSession'
-import { getSdk as createCreateUser } from '~/graphql/createUser'
+
+import gqlClient from '~/graphql'
 
 export type AuthQuery = Partial<{
   username: string
@@ -19,7 +18,7 @@ export default async function handleAuth(
     return res.status(403).end()
   }
 
-  const { users } = await createGetUserSession(gqlClient).getUserSession({
+  const { users } = await gqlClient.getUserSession({
     name: username,
   })
 
@@ -29,7 +28,7 @@ export default async function handleAuth(
       Math.random().toString(),
       await bcrypt.genSalt(1),
     )
-    const { insert_users_one } = await createCreateUser(gqlClient).createUser({
+    const { insert_users_one } = await gqlClient.createUser({
       name: username,
       password: hashedPassword,
       session,
