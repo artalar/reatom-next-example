@@ -73,6 +73,6 @@ GQL_TOKEN=qwerty
 This example is show how you may build application describe common logic in the Reatom without coupling on other frameworks (react / next). For example, described logic don't know anything about SSR, which has a some specific tricks (specially with Next.js). But to archive it we should wrap all global APIs (`fetch` and etc) to atoms for get possibility to manage it from store (it looks like IoC pattern and it container).
 
 ## Update gql scheme
-
+ 
 1. `npm run update_schema` will load new gql scheme using your `.env.local`
 2. `npm run gqlgen` will (re)generate gql sdk based on loaded scheme and operations in `src/graphql`
