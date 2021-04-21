@@ -9,7 +9,6 @@ import { initChat, chatAtom, isOnlineAtom } from '~/features/Chat/model'
 import { Chat } from '~/features/Chat'
 import { createEffectsTracker } from '~/utils'
 import { getMessages } from './api/messages'
-import { routerAtom } from '~/features/router'
 
 function ChatPage() {
   const handleInitChat = useAction(initChat)
@@ -46,6 +45,7 @@ ChatPage.getInitialProps = async (ctx: NextPageContext) => {
   const state = store.getState()
   // cleanup initial mock
   delete state[fetchAtom.id]
+  state[isOnlineAtom.id] = true
 
   return {
     state,

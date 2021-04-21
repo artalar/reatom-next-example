@@ -6,6 +6,8 @@ import { messagesAtom, sendMessage } from './Chat/model'
 const Container = styled(`main`)
 const Form = styled(`form`)
 const MessageWindow = styled(`section`)
+const Profile = styled(`div`)
+const Nickname = styled(`span`)
 const Input = styled(`textarea`)
 
 export const Chat = () => {
@@ -25,7 +27,12 @@ export const Chat = () => {
             const direction = isSelf ? `-right` : `-left`
             return (
               <section className={`message ${direction}`}>
-                {!isSelf && <i className="nes-bcrikko"></i>}
+                {!isSelf && (
+                  <Profile>
+                    <Nickname>@{msg.author}</Nickname>
+                    <i className="nes-bcrikko"></i>
+                  </Profile>
+                )}
                 <div key={index} className={`nes-balloon from${direction}`}>
                   <p>{msg.text}</p>
                 </div>
@@ -58,6 +65,13 @@ export const Chat = () => {
           flex: 1;
           overflow: auto;
           word-break: break-all;
+        }
+        ${Profile} {
+          display: flex;
+          flex-direction: column;
+        }
+        ${Nickname} {
+          max-width: 100px;
         }
         ${Form} {
           display: flex;

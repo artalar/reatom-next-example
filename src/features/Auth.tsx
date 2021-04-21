@@ -1,41 +1,40 @@
 import React from 'react'
 import { Style, styled } from 'stylerun'
 import { useModel } from '@reatom/react'
-import {
-  nameAtom,
-  onNameChange,
-  passwordAtom,
-  onPasswordChange,
-  onSubmit,
-} from './Auth/model'
+import { onInput, onSubmit, authAtom } from './Auth/model'
 
 const Container = styled('main')
 
 export const Auth = () => {
   const {
-    name,
-    password,
-    handleNameChange,
-    handlePasswordChange,
+    handleInput,
     handleSubmit,
+    auth: { name, password },
   } = useModel(() => ({
-    name: nameAtom,
-    handleNameChange: onNameChange,
-    password: passwordAtom,
-    handlePasswordChange: onPasswordChange,
-    handleSubmit: onSubmit,
+    handleInput: (e: React.FormEvent<HTMLFormElement>) => {
+      const { name, value } = e.target as HTMLInputElement
+      return onInput(name as 'name' | 'password', value)
+    },
+    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      return onSubmit()
+    },
+    auth: authAtom,
   }))
 
   return (
     <Container>
-      <form className="nes-container with-title" onSubmit={handleSubmit}>
+      <form
+        className="nes-container with-title"
+        onInput={handleInput}
+        onSubmit={handleSubmit}
+      >
         <h2 className="title">Auth</h2>
         <div className="nes-field">
           <label>Name:</label>
           <input
             className="nes-input"
             value={name}
-            onChange={handleNameChange}
             placeholder="Enter your nickname"
             name="name"
             type="text"
@@ -50,7 +49,6 @@ export const Auth = () => {
           <input
             className="nes-input"
             value={password}
-            onChange={handlePasswordChange}
             placeholder="Enter your password"
             name="password"
             type="password"

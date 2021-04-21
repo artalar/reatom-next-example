@@ -1,0 +1,11 @@
+query getNewMessages($session: String!, $from: Int!) {
+  messages(where: { id: { _gt: $from } }) {
+    id
+    date
+    author
+    text
+  }
+  users(where: { session: { _eq: $session } }) {
+    name
+  }
+}

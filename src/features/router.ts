@@ -1,7 +1,26 @@
-import { declareAtom } from '@reatom/core'
-import { Router } from 'next/router'
+import { declareAction, declareAtom } from '@reatom/core'
 
-export const routerAtom = declareAtom(($, state = (null as any) as Router) => {
-  if (state) return state
-  throw new Error(`You should specify router by store initialization`)
+export const push = declareAction(
+  (path: string, title?: string) => ({
+    payload: { path, title },
+  }),
+  `router/push`,
+)
+
+export const pushStateAtom = declareAtom(
+  ($, state = history.pushState.bind(history)) => state,
+  `router/pushState`,
+)
+
+export const routerAtom = declareAtom(($, state = window.location.pathname) => {
+  const pushState = $(pushStateAtom)
+
+  $(push.handle(({ path }) => (state = path)))
+  $(
+    push.handleEffect(({ payload }) =>
+      pushState({}, payload.title ?? document.title, state),
+    ),
+  )
+
+  return state
 }, `router/root`)

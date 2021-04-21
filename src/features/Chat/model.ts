@@ -1,13 +1,13 @@
 import { declareAction, declareAtom } from '@reatom/core'
 
 import { fetchAtom } from '~/features/fetch'
-import { routerAtom } from '~/features/router'
-import { GetMessagesQuery } from '~/graphql/getMessages'
+import { push } from '~/features/router'
 import { requestIdleCallback, sleep } from '~/utils'
+import type { Message } from '~/features/types'
 
 export const initChat = declareAction(`chat/initChat`)
 export const getMessages = declareAction(`chat/getMessages`)
-export const recieveMessages = declareAction<GetMessagesQuery['messages']>(
+export const receiveMessages = declareAction<Array<Message>>(
   `chat/recieveMessages`,
 )
 export const sendMessage = declareAction<string>(`chat/sendMessage`)
@@ -15,10 +15,9 @@ export const sendMessage = declareAction<string>(`chat/sendMessage`)
 export const isOnlineAtom = declareAtom(true, `chat/isOnline`)
 
 export const messagesAtom = declareAtom(
-  new Array<GetMessagesQuery['messages'][number]>(),
+  new Array<Message>(),
   ($, state) => {
     const fetch = $(fetchAtom)
-    const router = $(routerAtom)
 
     $(
       initChat.handleEffect(async (action, store) => {
@@ -30,22 +29,35 @@ export const messagesAtom = declareAtom(
     )
 
     $(
-      getMessages.handleEffect(async (action, store) => {
+      getMessages.handleEffect(async (action, { dispatch }) => {
         try {
-          const messages = await fetch(`/api/messages`).then<
-            GetMessagesQuery['messages']
-          >((response) => {
-            if (response.status === 200) return response.json()
-            throw new Error(response.status.toString())
-          })
-          store.dispatch(recieveMessages(messages))
+          let path = `/api/messages`
+          if (state.length > 0) {
+            path += `?from=${state[state.length - 1].id}`
+          }
+          const messages = await fetch(path).then<Array<Message>>(
+            (response) => {
+              if (response.status === 200) return response.json()
+              throw new Error(response.status.toString())
+            },
+          )
+          dispatch(receiveMessages(messages))
         } catch (error) {
-          router.push(`/auth`)
+          dispatch(push(`/auth`))
         }
       }),
     )
 
-    $(recieveMessages.handle((messages) => (state = [...state, ...messages])))
+    $(receiveMessages.handle((messages) => (state = [...state, ...messages])))
+
+    $(
+      sendMessage.handleEffect(({ payload: text }) => {
+        fetch(`/api/messages`, {
+          method: `post`,
+          body: JSON.stringify({ text }),
+        })
+      }),
+    )
 
     return state
   },

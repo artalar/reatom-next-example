@@ -2,20 +2,29 @@ import 'nes.css/css/nes.min.css'
 import React from 'react'
 import { useRouter } from 'next/router'
 import { Style } from 'stylerun'
-import { createStore } from '@reatom/core'
-import { reatomContext } from '@reatom/react'
 import type { AppProps /*, AppContext */ } from 'next/app'
+import { createStore, declareAtom } from '@reatom/core'
+import { reatomContext, useAtom } from '@reatom/react'
 import { connectReduxDevtools } from '~/reatom-redux-devtools'
-import { routerAtom } from '~/features/router'
+import { pushStateAtom, routerAtom } from '~/features/router'
+import { fetchAtom } from '~/features/fetch'
 
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter()
 
   const [store, setStore] = React.useState(() =>
-    createStore({ ...pageProps.state, [routerAtom.id]: router }),
+    createStore({
+      ...pageProps.state,
+      [routerAtom.id]: router.route,
+      [pushStateAtom.id]: (data: any, title: string, url: string) =>
+        router.push(url),
+    }),
   )
 
   React.useEffect(() => {
+    // atom thats initialize common resources
+    store.init(fetchAtom, routerAtom)
+
     connectReduxDevtools(store, setStore)
 
     // TODO: is it a best way?

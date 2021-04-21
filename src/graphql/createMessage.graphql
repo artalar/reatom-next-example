@@ -1,0 +1,5 @@
+mutation createMessage($author: String!, $text: String!) {
+  insert_messages_one(object: { author: $author, text: $text }) {
+    id
+  }
+}

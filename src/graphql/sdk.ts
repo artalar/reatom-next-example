@@ -302,6 +302,14 @@ export type Users_Update_Column =
   | 'password'
   | 'session';
 
+export type CreateMessageMutationVariables = Exact<{
+  author: Scalars['String'];
+  text: Scalars['String'];
+}>;
+
+
+export type CreateMessageMutation = { insert_messages_one?: Maybe<{ id: number }> };
+
 export type CreateUserMutationVariables = Exact<{
   name: Scalars['String'];
   password: Scalars['String'];
@@ -318,6 +326,21 @@ export type GetMessagesQueryVariables = Exact<{
 
 export type GetMessagesQuery = { messages: Array<{ id: number, date: string, author: string, text: string }>, users: Array<{ name: string }> };
 
+export type GetNewMessagesQueryVariables = Exact<{
+  session: Scalars['String'];
+  from: Scalars['Int'];
+}>;
+
+
+export type GetNewMessagesQuery = { messages: Array<{ id: number, date: string, author: string, text: string }>, users: Array<{ name: string }> };
+
+export type GetUserQueryVariables = Exact<{
+  session: Scalars['String'];
+}>;
+
+
+export type GetUserQuery = { users: Array<{ name: string }> };
+
 export type GetUserSessionQueryVariables = Exact<{
   name: Scalars['String'];
 }>;
@@ -326,6 +349,13 @@ export type GetUserSessionQueryVariables = Exact<{
 export type GetUserSessionQuery = { users: Array<{ session?: Maybe<string>, password: string }> };
 
 
+export const CreateMessageDocument = `
+    mutation createMessage($author: String!, $text: String!) {
+  insert_messages_one(object: {author: $author, text: $text}) {
+    id
+  }
+}
+    `;
 export const CreateUserDocument = `
     mutation createUser($name: String!, $password: String!, $session: String!) {
   insert_users_one(object: {name: $name, password: $password, session: $session}) {
@@ -346,6 +376,26 @@ export const GetMessagesDocument = `
   }
 }
     `;
+export const GetNewMessagesDocument = `
+    query getNewMessages($session: String!, $from: Int!) {
+  messages(where: {id: {_gt: $from}}) {
+    id
+    date
+    author
+    text
+  }
+  users(where: {session: {_eq: $session}}) {
+    name
+  }
+}
+    `;
+export const GetUserDocument = `
+    query getUser($session: String!) {
+  users(where: {session: {_eq: $session}}) {
+    name
+  }
+}
+    `;
 export const GetUserSessionDocument = `
     query getUserSession($name: String!) {
   users(where: {name: {_eq: $name}}) {
@@ -361,11 +411,20 @@ export type SdkFunctionWrapper = <T>(action: () => Promise<T>) => Promise<T>;
 const defaultWrapper: SdkFunctionWrapper = sdkFunction => sdkFunction();
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    createMessage(variables: CreateMessageMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateMessageMutation> {
+      return withWrapper(() => client.request<CreateMessageMutation>(CreateMessageDocument, variables, requestHeaders));
+    },
     createUser(variables: CreateUserMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateUserMutation> {
       return withWrapper(() => client.request<CreateUserMutation>(CreateUserDocument, variables, requestHeaders));
     },
     getMessages(variables: GetMessagesQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetMessagesQuery> {
       return withWrapper(() => client.request<GetMessagesQuery>(GetMessagesDocument, variables, requestHeaders));
+    },
+    getNewMessages(variables: GetNewMessagesQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetNewMessagesQuery> {
+      return withWrapper(() => client.request<GetNewMessagesQuery>(GetNewMessagesDocument, variables, requestHeaders));
+    },
+    getUser(variables: GetUserQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetUserQuery> {
+      return withWrapper(() => client.request<GetUserQuery>(GetUserDocument, variables, requestHeaders));
     },
     getUserSession(variables: GetUserSessionQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetUserSessionQuery> {
       return withWrapper(() => client.request<GetUserSessionQuery>(GetUserSessionDocument, variables, requestHeaders));

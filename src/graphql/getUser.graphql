@@ -1,0 +1,5 @@
+query getUser($session: String!) {
+  users(where: { session: { _eq: $session } }) {
+    name
+  }
+}
