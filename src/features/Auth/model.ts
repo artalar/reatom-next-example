@@ -11,7 +11,7 @@ export const onSubmit = declareAction(`auth/onSubmit`)
 
 export const authAtom = declareAtom(
   { name: ``, password: `` },
-  ($, state, update) => {
+  ($, state) => {
     const fetch = $(fetchAtom)
 
     $(

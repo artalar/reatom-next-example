@@ -29,8 +29,8 @@ export const Chat = () => {
               <section className={`message ${direction}`}>
                 {!isSelf && (
                   <Profile>
+                  <i className="nes-bcrikko"></i>
                     <Nickname>@{msg.author}</Nickname>
-                    <i className="nes-bcrikko"></i>
                   </Profile>
                 )}
                 <div key={index} className={`nes-balloon from${direction}`}>
@@ -71,6 +71,7 @@ export const Chat = () => {
           flex-direction: column;
         }
         ${Nickname} {
+          margin-top: 0.5em;
           max-width: 100px;
         }
         ${Form} {

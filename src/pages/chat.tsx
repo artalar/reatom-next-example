@@ -1,55 +1,66 @@
 import React from 'react'
-import { NextPageContext } from 'next'
+import { GetServerSideProps } from 'next'
 import fetch, { Response } from 'cross-fetch'
 import { createStore, declareAtom } from '@reatom/core'
 import { useAction, useAtom } from '@reatom/react'
 
 import { fetchAtom } from '~/features/fetch'
+import { pushStateAtom, routerAtom } from '~/features/router'
 import { initChat, chatAtom, isOnlineAtom } from '~/features/Chat/model'
 import { Chat } from '~/features/Chat'
 import { createEffectsTracker } from '~/utils'
 import { getMessages } from './api/messages'
 
-function ChatPage() {
-  const handleInitChat = useAction(initChat)
-
-  // FIXME: replace by `useInit`
-  useAtom(React.useMemo(() => declareAtom(($) => ($(chatAtom), null)), []))
-
-  React.useEffect(() => void handleInitChat(), [])
-
-  return <Chat />
-}
-
-ChatPage.getInitialProps = async (ctx: NextPageContext) => {
-  const store = createStore({
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  let redirect: string | undefined
+  const mock = {
+    [routerAtom.id]: `/chat`,
     [fetchAtom.id]: async (...a: any[]) => {
       if (a[0] === `/api/messages`) {
-        // FIXME:
-        // @ts-expect-error
-        const { session } = ctx.req?.cookies ?? {}
-        return new Response(JSON.stringify(await getMessages(session)))
+        const { session } = context.req?.cookies ?? {}
+        const messages = await getMessages(session)
+        return new Response(JSON.stringify(messages), {
+          status: messages ? 200 : 403,
+        })
       }
       // @ts-expect-error
       return fetch(...a)
     },
-    // [routerAtom.id]: new Router()
-  })
-  store.init(chatAtom)
+    [pushStateAtom.id]: (data: any, title: string, url: string) => {
+      redirect = url
+    },
+    [isOnlineAtom.id]: false,
+  }
+  const store = createStore(mock)
+  store.init(routerAtom, fetchAtom, chatAtom)
 
-  await createEffectsTracker(store, () => {
-    store.dispatch(initChat())
-    setTimeout(() => store.dispatch(isOnlineAtom.update(false)))
-  })
+  await createEffectsTracker(store, () => store.dispatch(initChat()))
 
   const state = store.getState()
-  // cleanup initial mock
-  delete state[fetchAtom.id]
-  state[isOnlineAtom.id] = true
+  Object.keys(mock).forEach((key) => delete state[key])
 
   return {
-    state,
+    props: {
+      state,
+    },
+    redirect: redirect && { destination: redirect, permanent: false },
   }
+}
+
+function ChatPage() {
+  const handleInitChat = useAction(initChat)
+
+  // FIXME: replace by `useInit`
+  useAtom(
+    React.useMemo(
+      () => declareAtom(($) => ($(chatAtom), null), `chat/controller`),
+      [],
+    ),
+  )
+
+  React.useEffect(() => void handleInitChat(), [])
+
+  return <Chat />
 }
 
 export default ChatPage
